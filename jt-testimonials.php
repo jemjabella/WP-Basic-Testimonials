@@ -51,13 +51,25 @@ if( !class_exists( 'jtTestimonials' ) ) {
 			);
 		}
 		
-		function display_testimonials() {
+		function display_testimonials( $atts ) {
 			ob_start();
+
+			$atts = shortcode_atts( array(
+				'show' => 'all',
+				'images' => 'no'
+			), $atts, 'testimonials' );
+
 			
 			$args = array(
-				'post_type' => 'testimonial',
-				'posts_per_page' => -1			
+				'post_type' => 'testimonial'
 			);
+			
+			if ( $atts['show'] == 'all' || !is_numeric( $atts['show'] ) ) {
+				$args['posts_per_page'] = -1;
+			} else {
+				$args['posts_per_page'] = (int)$atts['show'];
+				$args['orderby'] = 'rand';
+			}
 			
 			$testimonials = new WP_Query( $args ); 
 			
@@ -66,6 +78,7 @@ if( !class_exists( 'jtTestimonials' ) ) {
 					$testimonials->the_post();
 ?>
 					<div class="testimonial cf">
+						<?php if ( $atts['images'] == 'yes' ) : the_post_thumbnail(); endif; ?>
 						<blockquote><?php the_content(); ?></blockquote>
 						<p><cite><?php the_title(); ?></cite></p>
 					</div>
